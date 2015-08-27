@@ -5,7 +5,9 @@ import android.os.Bundle;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity {
@@ -60,6 +62,41 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        UiSettings settings = mMap.getUiSettings();
+
+        settings.setCompassEnabled(true);
+        //ズームイン、ズームアウト
+        settings.setZoomControlsEnabled(true);
+        //回転
+        settings.setRotateGesturesEnabled(true);
+        //スクロールジェスチャー
+        settings.setScrollGesturesEnabled(true);
+        //立体表示有効可
+        settings.setTiltGesturesEnabled(true);
+        //ピンチイン、アウトの有効可
+        settings.setZoomGesturesEnabled(true);
+
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng Latlng){
+               addMaker();
+            }
+        }
+
+           private void addMaker(){
+              MarkerOptions options = new MarkerOptions();
+              mMap.addMarker(options);
+
+           }
+
+
+
+
     }
 }
+
+
+
