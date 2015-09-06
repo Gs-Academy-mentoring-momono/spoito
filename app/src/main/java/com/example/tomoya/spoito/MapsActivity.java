@@ -1,13 +1,12 @@
 package com.example.tomoya.spoito;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity {
@@ -84,16 +83,13 @@ public class MapsActivity extends FragmentActivity {
             public void onMapClick(LatLng Latlng){
                addMaker();
             }
-        }
+        });
 
-           private void addMaker(){
-              MarkerOptions options = new MarkerOptions();
-              mMap.addMarker(options);
+    }
 
-           }
-
-
-
+    private void addMaker(){
+        MarkerOptions options = new MarkerOptions();
+        mMap.addMarker(options);
 
     }
 }
