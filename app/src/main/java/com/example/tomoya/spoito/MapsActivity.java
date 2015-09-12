@@ -1,10 +1,13 @@
 package com.example.tomoya.spoito;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,6 +20,7 @@ import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 
+
 public class MapsActivity extends AppCompatActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -24,11 +28,14 @@ public class MapsActivity extends AppCompatActivity {
     private static final int MENU_DELETE_MARKERS = 0;
     private static final int REQUEST_FOR_LOCATION_INFO = 100;
     Realm mRealm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         setUpMapIfNeeded();
+
     }
 
     @Override
@@ -103,14 +110,17 @@ public class MapsActivity extends AppCompatActivity {
                 .position(clicklat)
                 .title("クリックした場所"));
 
+
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
+
                 saveLocation(latLng);
                 drawMarker(latLng);
                 mPositionNum++;
                 //TODO: 長押ししたら、そこの位置情報を情報登録画面に渡してあげる。情報を登録したら、mapの画面に戻ってくる
                 //gotoAddLocationInfoActivity(latLng);
+
             }
         });
     }
@@ -179,6 +189,7 @@ public class MapsActivity extends AppCompatActivity {
         mMap.clear();
         mPositionNum = 0;
     }
+
 
 }
 
