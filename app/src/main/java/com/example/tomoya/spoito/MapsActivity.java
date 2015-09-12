@@ -1,8 +1,16 @@
 package com.example.tomoya.spoito;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,16 +19,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends FragmentActivity{
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private int positionNum = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        setUpMapIfNeeded();
-
     }
 
     @Override
@@ -67,27 +74,82 @@ public class MapsActivity extends FragmentActivity {
 
 
 
+
+
 //    暫定で場所を指定している。クリック時の緯度軽度を取得してここに代入?
     private void setUpMap() {
-        LatLng clicklat = new LatLng(35.671241, 139.765041);
-        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
-        mMap.moveCamera(cu);
-        mMap.addMarker(new MarkerOptions()
-                .position(clicklat)
-                .draggable(true)
-                .title("クリックした場所"));
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
+
+        if(status!= ConnectionResult.SUCCESS) { // Google Play Services are not available
+
+            int requestCode = 10;
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
+            dialog.show();
+
+        }else{
+            //mylocationがnullの場合は銀座を中心として表示
+            LatLng clicklat = new LatLng(35.671241, 139.765041);
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
+            mMap.moveCamera(cu);
+            mMap.addMarker(new MarkerOptions().position(clicklat).title("クリックした場所"));
+            mMap.addMarker(new MarkerOptions()
+                            .position(clicklat)
+                            .draggable(true)
+                            .title("クリックした場所"));
+
+
+        // Enable MyLocation Layer of Google Map
+        mMap.setMyLocationEnabled(true);
+
+        // Get LocationManager object from System Service LOCATION_SERVICE
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Create a criteria object to retrieve provider
+        Criteria criteria = new Criteria();
+
+        // Get the name of the best provider
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Get Current Location
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+            if(myLocation!=null) {
+
+               // set map type
+               mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+                // Get latitude of the current location
+                double latitude = myLocation.getLatitude();
+
+                // Get longitude of the current location
+                double longitude = myLocation.getLongitude();
+
+
+
+                // Create a LatLng object for the current location
+                LatLng latLng = new LatLng(latitude, longitude);
+
+                // Show the current location in Google Map
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                // Zoom in the Google Map
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!").snippet("Consider yourself located"));
+        }
+        }
+
+
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title("position" + positionNum));
+                        .position(latLng)
+                        .title("position" + positionNum));
                 positionNum++;
             }
         });
     }
-
 
 }
 
