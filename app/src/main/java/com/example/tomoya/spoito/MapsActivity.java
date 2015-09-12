@@ -3,12 +3,9 @@ package com.example.tomoya.spoito;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
@@ -18,22 +15,57 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 
-public class MapsActivity extends FragmentActivity{
+
+
+public class MapsActivity extends AppCompatActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private int positionNum = 0;
+    private int mPositionNum = 0;
+    private static final int MENU_DELETE_MARKERS = 0;
+    private static final int REQUEST_FOR_LOCATION_INFO = 100;
+    Realm mRealm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        setUpMapIfNeeded();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(mRealm != null){
+            mRealm.close();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, MENU_DELETE_MARKERS, Menu.NONE, "(Debug用)マーカー消す");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case MENU_DELETE_MARKERS:
+                deleteDatafromRealm();
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -65,91 +97,99 @@ public class MapsActivity extends FragmentActivity{
         }
     }
 
+
     /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     * データベースに保存されている位置情報データをマップに表示する
      */
-
-
-
-
-
-//    暫定で場所を指定している。クリック時の緯度軽度を取得してここに代入?
     private void setUpMap() {
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
-
-        if(status!= ConnectionResult.SUCCESS) { // Google Play Services are not available
-
-            int requestCode = 10;
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
-            dialog.show();
-
-        }else{
-            //mylocationがnullの場合は銀座を中心として表示
-            LatLng clicklat = new LatLng(35.671241, 139.765041);
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
-            mMap.moveCamera(cu);
-            mMap.addMarker(new MarkerOptions().position(clicklat).title("クリックした場所"));
-            mMap.addMarker(new MarkerOptions()
-                            .position(clicklat)
-                            .draggable(true)
-                            .title("クリックした場所"));
-
-
-        // Enable MyLocation Layer of Google Map
-        mMap.setMyLocationEnabled(true);
-
-        // Get LocationManager object from System Service LOCATION_SERVICE
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        // Create a criteria object to retrieve provider
-        Criteria criteria = new Criteria();
-
-        // Get the name of the best provider
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        // Get Current Location
-        Location myLocation = locationManager.getLastKnownLocation(provider);
-
-            if(myLocation!=null) {
-
-               // set map type
-               mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-                // Get latitude of the current location
-                double latitude = myLocation.getLatitude();
-
-                // Get longitude of the current location
-                double longitude = myLocation.getLongitude();
-
-
-
-                // Create a LatLng object for the current location
-                LatLng latLng = new LatLng(latitude, longitude);
-
-                // Show the current location in Google Map
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-                // Zoom in the Google Map
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-                mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!").snippet("Consider yourself located"));
-        }
-        }
-
+        loadDataFromRealm();
+        LatLng clicklat = new LatLng(35.671241, 139.765041);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
+        mMap.moveCamera(cu);
+        mMap.addMarker(new MarkerOptions()
+                .position(clicklat)
+                .title("クリックした場所"));
 
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                mMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title("position" + positionNum));
-                positionNum++;
+
+                saveLocation(latLng);
+                drawMarker(latLng);
+                mPositionNum++;
+                //TODO: 長押ししたら、そこの位置情報を情報登録画面に渡してあげる。情報を登録したら、mapの画面に戻ってくる
+                //gotoAddLocationInfoActivity(latLng);
+
             }
         });
     }
+
+    /**
+     * ロケーションをDBに保存する
+     * @param latLng
+     */
+    private void saveLocation(LatLng latLng){
+        if(mRealm == null) {
+            mRealm = Realm.getInstance(this);
+        }
+        mRealm.beginTransaction();
+        LocationData data = mRealm.createObject(LocationData.class);
+        data.setLatitude(latLng.latitude);
+        data.setLongitude(latLng.longitude);
+        data.setTitle("position " + mPositionNum);
+        mRealm.commitTransaction();
+    }
+
+    private void drawMarker(LatLng latLng){
+        mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("position " + mPositionNum));
+    }
+
+//    private void gotoAddLocationInfoActivity(LatLng latLng){
+//        Intent intent = AddLocationInfoActivity.createIntent(this, latLng);
+//        startActivityForResult(intent, REQUEST_FOR_LOCATION_INFO);
+//    }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if(requestCode == REQUEST_FOR_LOCATION_INFO){
+//            //DBから再ロードする
+//            loadDataFromRealm();
+//        }
+//    }
+
+    private void loadDataFromRealm(){
+        if(mRealm == null) {
+            mRealm = Realm.getInstance(this);
+        }
+        RealmQuery<LocationData> query = mRealm.where(LocationData.class);
+
+        RealmResults<LocationData> realmResults = query.findAll();
+        for (LocationData data: realmResults ) {
+            LatLng latLng = new LatLng(data.getLatitude(), data.getLongitude());
+            mMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(data.getTitle()));
+        }
+    }
+
+    private void deleteDatafromRealm(){
+        if(mRealm == null) {
+            mRealm = Realm.getInstance(this);
+        }
+        mRealm.beginTransaction();
+        RealmQuery<LocationData> query = mRealm.where(LocationData.class);
+        RealmResults<LocationData> realmResults = query.findAll();
+        realmResults.clear();
+        mRealm.commitTransaction();
+
+        mMap.clear();
+        mPositionNum = 0;
+    }
+
 
 }
 
