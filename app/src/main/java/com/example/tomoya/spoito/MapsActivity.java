@@ -2,22 +2,19 @@ package com.example.tomoya.spoito;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
+    private int positionNum = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +72,20 @@ public class MapsActivity extends FragmentActivity {
         LatLng clicklat = new LatLng(35.671241, 139.765041);
         CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
         mMap.moveCamera(cu);
-        mMap.addMarker(new MarkerOptions().position(clicklat).title("クリックした場所"));
+        mMap.addMarker(new MarkerOptions()
+                .position(clicklat)
+                .draggable(true)
+                .title("クリックした場所"));
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title("position" + positionNum));
+                positionNum++;
+            }
+        });
     }
 
 
