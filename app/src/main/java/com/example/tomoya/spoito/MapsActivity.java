@@ -2,12 +2,17 @@ package com.example.tomoya.spoito;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+
 
 public class MapsActivity extends FragmentActivity {
 
@@ -18,6 +23,7 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
     }
 
     @Override
@@ -41,6 +47,7 @@ public class MapsActivity extends FragmentActivity {
      * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
      * method in {@link #onResume()} to guarantee that it will be called.
      */
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -60,38 +67,18 @@ public class MapsActivity extends FragmentActivity {
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
+
+
+
+//    暫定で場所を指定している。クリック時の緯度軽度を取得してここに代入?
     private void setUpMap() {
-        UiSettings settings = mMap.getUiSettings();
-
-        settings.setCompassEnabled(true);
-        //ズームイン、ズームアウト
-        settings.setZoomControlsEnabled(true);
-        //回転
-        settings.setRotateGesturesEnabled(true);
-        //スクロールジェスチャー
-        settings.setScrollGesturesEnabled(true);
-        //立体表示有効可
-        settings.setTiltGesturesEnabled(true);
-        //ピンチイン、アウトの有効可
-        settings.setZoomGesturesEnabled(true);
-
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng Latlng){
-               addMaker();
-            }
-        });
-
+        LatLng clicklat = new LatLng(35.671241, 139.765041);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
+        mMap.moveCamera(cu);
+        mMap.addMarker(new MarkerOptions().position(clicklat).title("クリックした場所"));
     }
 
-    private void addMaker(){
-        MarkerOptions options = new MarkerOptions();
-        mMap.addMarker(options);
 
-    }
 }
 
 
