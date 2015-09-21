@@ -1,7 +1,9 @@
 package com.example.tomoya.spoito;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -119,6 +121,9 @@ public class MapsActivity extends AppCompatActivity {
                 drawMarker(latLng);
                 mPositionNum++;
                 //TODO: 長押ししたら、そこの位置情報を情報登録画面に渡してあげる。情報を登録したら、mapの画面に戻ってくる
+                Intent intent = new Intent(getApplication(), AddLocationInfoActivity.class);
+                intent.putExtra("location",latLng);
+                startActivity(intent);
                 //gotoAddLocationInfoActivity(latLng);
 
             }
