@@ -1,6 +1,6 @@
 package com.example.tomoya.spoito;
 
-import io.realm.RealmObject;
+        import io.realm.RealmObject;
 
 public class LocationData extends RealmObject {
     private double latitude;

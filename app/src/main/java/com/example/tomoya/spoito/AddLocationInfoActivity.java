@@ -79,19 +79,21 @@ public class AddLocationInfoActivity extends AppCompatActivity {
             return;
         }
 
-        Realm realm = Realm.getInstance(this);
+        mRealm = Realm.getInstance(this);
 
-        realm.beginTransaction();
 
 //... add or update objects here ...
 
-        realm.commitTransaction();
 
-        realm.beginTransaction();
-        LocationData locationData = realm.createObject(LocationData.class); // Create a new object
+        LatLng latLng = getIntent().getParcelableExtra("location"); //前の画面からの緯度経度情報
+        mRealm = Realm.getInstance(this);
+        mRealm.beginTransaction();
+        LocationData locationData = mRealm.createObject(LocationData.class); // Create a new object
         locationData.setTitle(title);
         locationData.setDetailInfo(detailInfo);
-        realm.commitTransaction();
+        locationData.setLatitude(latLng.latitude);
+        locationData.setLongitude(latLng.longitude);
+        mRealm.commitTransaction();
 
         Toast.makeText(getApplicationContext(), "保存しました",
                 Toast.LENGTH_SHORT).show();

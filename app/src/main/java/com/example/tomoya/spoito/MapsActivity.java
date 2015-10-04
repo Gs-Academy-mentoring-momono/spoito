@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -106,24 +107,24 @@ public class MapsActivity extends AppCompatActivity {
     private void setUpMap() {
         loadDataFromRealm();
         LatLng clicklat = new LatLng(35.671241, 139.765041);
-        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 15);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 18);
+        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         mMap.moveCamera(cu);
         mMap.addMarker(new MarkerOptions()
                 .position(clicklat)
                 .title("クリックした場所"));
+//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.you)));
 
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
 
-                saveLocation(latLng);
-                drawMarker(latLng);
                 mPositionNum++;
                 //TODO: 長押ししたら、そこの位置情報を情報登録画面に渡してあげる。情報を登録したら、mapの画面に戻ってくる
                 Intent intent = new Intent(getApplication(), AddLocationInfoActivity.class);
-                intent.putExtra("location",latLng);
-                startActivity(intent);
+                intent.putExtra("location", latLng);
+                startActivityForResult(intent, REQUEST_FOR_LOCATION_INFO);
                 //gotoAddLocationInfoActivity(latLng);
 
             }
@@ -152,19 +153,19 @@ public class MapsActivity extends AppCompatActivity {
                 .title("position " + mPositionNum));
     }
 
-//    private void gotoAddLocationInfoActivity(LatLng latLng){
-//        Intent intent = AddLocationInfoActivity.createIntent(this, latLng);
-//        startActivityForResult(intent, REQUEST_FOR_LOCATION_INFO);
-//    }
+    private void gotoAddLocationInfoActivity(LatLng latLng){
+        Intent intent = AddLocationInfoActivity.createIntent(this, latLng);
+        startActivityForResult(intent, REQUEST_FOR_LOCATION_INFO);
+    }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if(requestCode == REQUEST_FOR_LOCATION_INFO){
-//            //DBから再ロードする
-//            loadDataFromRealm();
-//        }
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_FOR_LOCATION_INFO){
+            //DBから再ロードする
+            loadDataFromRealm();
+        }
+    }
 
     private void loadDataFromRealm(){
         if(mRealm == null) {
@@ -177,7 +178,9 @@ public class MapsActivity extends AppCompatActivity {
             LatLng latLng = new LatLng(data.getLatitude(), data.getLongitude());
             mMap.addMarker(new MarkerOptions()
                     .position(latLng)
-                    .title(data.getTitle()));
+                    .title(data.getTitle())
+                    .snippet(data.getDetailInfo())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.you2)));
         }
     }
 
