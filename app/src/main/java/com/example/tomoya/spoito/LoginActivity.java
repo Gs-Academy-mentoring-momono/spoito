@@ -1,40 +1,57 @@
 package com.example.tomoya.spoito;
 
-import android.app.Application;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.util.Base64;
-import android.util.Log;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
+
 /**
  * Created by Tomoya on 15/10/04.
  */
 
-public class LoginActivity extends Application {
+public class LoginActivity extends AppCompatActivity {
+    CallbackManager callbackManager;
     @Override
-    public void onCreate() {
-        super.onCreate();
-        printHashKey();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        setContentView(R.layout.activity_login);
+        callbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                gotoMapsActivity();
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+
+        });
     }
 
-    public void printHashKey(){
-        // Add code to print out the key hash
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "net.simplifiedcoding.androidlogin",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
 
-        } catch (NoSuchAlgorithmException e) {
-
-        }
+    private void gotoMapsActivity(){
+        Intent intent = MapsActivity.createIntent(this);
+        startActivity(intent);
     }
 }
