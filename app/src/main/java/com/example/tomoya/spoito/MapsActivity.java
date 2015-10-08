@@ -1,7 +1,5 @@
 package com.example.tomoya.spoito;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.facebook.FacebookSdk;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,12 +29,14 @@ public class MapsActivity extends AppCompatActivity {
     private static final int REQUEST_FOR_LOCATION_INFO = 100;
     Realm mRealm;
 
+    public static Intent createIntent(Context context){
+        Intent intent = new Intent(context, MapsActivity.class);
+        return intent;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        facebookログイン
-        FacebookSdk.sdkInitialize(this);
-
         setContentView(R.layout.activity_maps);
 
         setUpMapIfNeeded();
