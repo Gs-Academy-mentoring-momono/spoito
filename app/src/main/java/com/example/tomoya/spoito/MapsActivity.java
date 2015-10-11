@@ -1,11 +1,16 @@
 package com.example.tomoya.spoito;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.app.AlertDialog;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -13,7 +18,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.squareup.picasso.Picasso;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -22,6 +30,37 @@ import io.realm.RealmResults;
 
 
 public class MapsActivity extends AppCompatActivity {
+
+    class MyInfoWindowAdapter implements InfoWindowAdapter{
+
+        private final View myContentsView;
+        private Context mContext;
+        MyInfoWindowAdapter(Context context){
+            mContext = context;
+            myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+
+            TextView tvTitle = ((TextView)myContentsView.findViewById(R.id.title));
+            tvTitle.setText(marker.getTitle());
+            TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
+            tvSnippet.setText(marker.getSnippet());
+            ImageView pict = ((ImageView)myContentsView.findViewById(R.id.pict));
+            Picasso.with(mContext).load(mPictureUri.getUriString()).into(pict);
+
+
+            return myContentsView;
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+    }
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private int mPositionNum = 0;
@@ -41,6 +80,8 @@ public class MapsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_maps);
 
         setUpMapIfNeeded();
+
+        mMap.setInfoWindowAdapter(new MyInfoWindowAdapter(this));
 
     }
 
@@ -135,6 +176,7 @@ public class MapsActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_FOR_LOCATION_INFO);
                 //gotoAddLocationInfoActivity(latLng);
 
+
             }
         });
     }
@@ -189,6 +231,8 @@ public class MapsActivity extends AppCompatActivity {
                     .title(data.getTitle())
                     .snippet(data.getDetailInfo())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.you2)));
+
+
         }
     }
 
@@ -212,7 +256,11 @@ public class MapsActivity extends AppCompatActivity {
     }
 
 
+
 }
+
+
+
 
 
 

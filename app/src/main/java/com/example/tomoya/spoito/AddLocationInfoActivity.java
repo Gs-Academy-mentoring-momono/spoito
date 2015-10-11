@@ -120,7 +120,7 @@ public class AddLocationInfoActivity extends AppCompatActivity {
             if (resultData != null) {
                 uri = resultData.getData();
                 Log.i("", "Uri: " + uri.toString());
-
+                mPictureUri = uri;
                 try {
                     Bitmap bmp = getBitmapFromUri(uri);
                     imageView.setImageBitmap(bmp);
