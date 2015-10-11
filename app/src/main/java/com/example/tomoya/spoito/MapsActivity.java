@@ -1,8 +1,8 @@
 package com.example.tomoya.spoito;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,18 +10,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.app.AlertDialog;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
 
 import io.realm.Realm;
 import io.realm.RealmQuery;
@@ -31,13 +32,14 @@ import io.realm.RealmResults;
 
 public class MapsActivity extends AppCompatActivity {
 
-    class MyInfoWindowAdapter implements InfoWindowAdapter{
+    static class MyInfoWindowAdapter implements InfoWindowAdapter{
 
         private final View myContentsView;
         private Context mContext;
+        private HashMap<LatLng,String> mUriList;
         MyInfoWindowAdapter(Context context){
             mContext = context;
-            myContentsView = getLayoutInflater().inflate(R.layout.custom_info_contents, null);
+            myContentsView = View.inflate(mContext, R.layout.custom_info_contents,null);
         }
 
         @Override
@@ -48,8 +50,11 @@ public class MapsActivity extends AppCompatActivity {
             TextView tvSnippet = ((TextView)myContentsView.findViewById(R.id.snippet));
             tvSnippet.setText(marker.getSnippet());
             ImageView pict = ((ImageView)myContentsView.findViewById(R.id.pict));
-            Picasso.with(mContext).load(mPictureUri.getUriString()).into(pict);
-
+            Picasso.with(mContext)
+                    .load(Uri.parse(mUriList.get(marker.getPosition())))
+                    .resize(200,200)
+                    .centerCrop()
+                    .into(pict);
 
             return myContentsView;
         }
@@ -60,10 +65,15 @@ public class MapsActivity extends AppCompatActivity {
             return null;
         }
 
+        public void setUriList(HashMap<LatLng,String> list){
+            mUriList = list;
+        }
+
     }
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private int mPositionNum = 0;
+    private HashMap<LatLng, String> mUriMap = new HashMap<>();
     private static final int MENU_DELETE_MARKERS = 0;
     private static final int GO_TO_LISTVIEW = 1;
     private static final int REQUEST_FOR_LOCATION_INFO = 100;
@@ -80,8 +90,9 @@ public class MapsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_maps);
 
         setUpMapIfNeeded();
-
-        mMap.setInfoWindowAdapter(new MyInfoWindowAdapter(this));
+        MyInfoWindowAdapter myInfoWindowAdapter = new MyInfoWindowAdapter(this);
+        myInfoWindowAdapter.setUriList(mUriMap);
+        mMap.setInfoWindowAdapter(myInfoWindowAdapter);
 
     }
 
@@ -218,22 +229,25 @@ public class MapsActivity extends AppCompatActivity {
     }
 
     private void loadDataFromRealm(){
+        mUriMap.clear();
         if(mRealm == null) {
             mRealm = Realm.getInstance(this);
         }
         RealmQuery<LocationData> query = mRealm.where(LocationData.class);
 
         RealmResults<LocationData> realmResults = query.findAll();
+        HashMap<LatLng,String> uriList = new HashMap<>();
         for (LocationData data: realmResults ) {
             LatLng latLng = new LatLng(data.getLatitude(), data.getLongitude());
             mMap.addMarker(new MarkerOptions()
                     .position(latLng)
+
                     .title(data.getTitle())
                     .snippet(data.getDetailInfo())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.you2)));
-
-
+            uriList.put(latLng,data.getUriString());
         }
+        mUriMap.putAll(uriList);
     }
 
     private void deleteDatafromRealm(){
@@ -254,8 +268,6 @@ public class MapsActivity extends AppCompatActivity {
         Intent intent = new Intent(MapsActivity.this,ListViewActivity.class);
         startActivity(intent);
     }
-
-
 
 }
 
