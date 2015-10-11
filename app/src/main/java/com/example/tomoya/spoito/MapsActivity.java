@@ -26,6 +26,7 @@ public class MapsActivity extends AppCompatActivity {
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private int mPositionNum = 0;
     private static final int MENU_DELETE_MARKERS = 0;
+    private static final int GO_TO_LISTVIEW = 1;
     private static final int REQUEST_FOR_LOCATION_INFO = 100;
     Realm mRealm;
 
@@ -60,6 +61,8 @@ public class MapsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(Menu.NONE, MENU_DELETE_MARKERS, Menu.NONE, "(Debug用)マーカー消す");
+        menu.add(Menu.NONE, GO_TO_LISTVIEW, Menu.NONE, "リストビューに飛ぶ");
+
         return true;
     }
 
@@ -69,7 +72,10 @@ public class MapsActivity extends AppCompatActivity {
             case MENU_DELETE_MARKERS:
                 deleteDatafromRealm();
                 return true;
+            case GO_TO_LISTVIEW:
+                gotoListViewActivity();
         }
+
         return false;
     }
 
@@ -198,6 +204,11 @@ public class MapsActivity extends AppCompatActivity {
 
         mMap.clear();
         mPositionNum = 0;
+    }
+
+    private void gotoListViewActivity(){
+        Intent intent = new Intent(MapsActivity.this,ListViewActivity.class);
+        startActivity(intent);
     }
 
 

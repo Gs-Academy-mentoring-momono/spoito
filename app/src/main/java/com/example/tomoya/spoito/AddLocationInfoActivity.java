@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Button;
 import android.widget.Toast;
@@ -60,6 +61,7 @@ public class AddLocationInfoActivity extends AppCompatActivity {
                 submit();
             }
         });
+
 
 
 //        ーーーーー背景クリックでキーボード隠す処理↓ーーーーー
