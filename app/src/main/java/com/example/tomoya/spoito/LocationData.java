@@ -8,6 +8,12 @@ public class LocationData extends RealmObject {
     private String title;
     private String detailInfo;
 
+    public String getUriString() {
+        return uriString;
+    }
+
+    private String uriString;
+
     public String getDetailInfo() {
         return detailInfo;
     }
@@ -39,6 +45,8 @@ public class LocationData extends RealmObject {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public void setUriString(String uriString){ this.uriString = uriString; }
 
 
 }
