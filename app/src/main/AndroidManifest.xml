@@ -26,8 +26,8 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login" >
+            android:name=".SplashActivity"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,6 +41,11 @@
             >
         </activity>
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
+
+        <activity
+            android:name="com.example.tomoya.spoito.LoginActivity"
+            android:label="@string/title_activity_login" >
+        </activity>
         <activity
             android:name="com.example.tomoya.spoito.MapsActivity"
             android:label="@string/title_activity_maps" >

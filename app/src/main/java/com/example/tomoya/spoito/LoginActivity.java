@@ -1,6 +1,8 @@
 package com.example.tomoya.spoito;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -17,18 +19,30 @@ import com.facebook.login.widget.LoginButton;
 
 public class LoginActivity extends AppCompatActivity {
     CallbackManager callbackManager;
+
+    public static Intent createIntent(Context context){
+        Intent intent = new Intent(context, LoginActivity.class);
+        return intent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
+
         callbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                //access_tokenをローカルに保存
+                SharedPreferences.Editor editor = getSharedPreferences(S.preferences, Context.MODE_PRIVATE).edit();
+                editor.putString(S.fb_access_token, loginResult.getAccessToken().getToken());
+                editor.apply();
                 gotoMapsActivity();
+                finish();
             }
 
             @Override
