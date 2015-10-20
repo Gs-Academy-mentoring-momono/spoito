@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 public class ListViewActivity extends Activity {
     /**
      * Called when the activity is first created.
@@ -17,15 +19,26 @@ public class ListViewActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listview);
 
-        // リストビューに表示するためのデータを設定
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_list_item_1);
-        adapter.add("listview item 1");
-        adapter.add("listview item 2");
-        adapter.add("listview item 3");
+// ListViewのインスタンスを取得
+        ListView list = (ListView)findViewById(R.id.listView1);
 
-        // リストビューにデータを設定
-        ListView listView1 = (ListView) findViewById(R.id.listView1);
-        listView1.setAdapter(adapter);
+        // リストアイテムのラベルを格納するArrayListをインスタンス化
+        ArrayList<String> labelList = new ArrayList<String>();
+
+        // "List Item + ??"を20個リストに追加
+        for(int i=1; i<=20; i++){
+            labelList.add("List Item "+i);
+        }
+
+        // Adapterのインスタンス化
+        // 第三引数にlabelListを渡す
+        CustomAdapter mAdapter = new CustomAdapter(this, 0, labelList);
+
+        // リストにAdapterをセット
+        list.setAdapter(mAdapter);
+
+        // リストアイテムの間の区切り線を非表示にする
+        list.setDivider(null);
     }
+
 }

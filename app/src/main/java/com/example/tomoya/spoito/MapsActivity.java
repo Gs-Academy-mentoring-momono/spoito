@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -52,7 +53,7 @@ public class MapsActivity extends AppCompatActivity {
             ImageView pict = ((ImageView)myContentsView.findViewById(R.id.pict));
             Picasso.with(mContext)
                     .load(Uri.parse(mUriList.get(marker.getPosition())))
-                    .resize(200,200)
+                    .resize(200,150)
                     .centerCrop()
                     .into(pict);
 
@@ -167,13 +168,23 @@ public class MapsActivity extends AppCompatActivity {
     private void setUpMap() {
         loadDataFromRealm();
         LatLng clicklat = new LatLng(35.671241, 139.765041);
-        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(clicklat, 18);
-        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        mMap.moveCamera(cu);
+        mMap.animateCamera(CameraUpdateFactory.zoomIn());
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(clicklat)      // Sets the center of the map to Mountain View
+                .zoom(15)                   // Sets the zoom
+                .bearing(90)                // Sets the orientation of the camera to east
+                .tilt(80)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+
+        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         mMap.addMarker(new MarkerOptions()
                 .position(clicklat)
                 .title("クリックした場所"));
-//                .icon(BitmapDescriptorFactory.fromResource(R.drawable.you)));
+//              .icon(BitmapDescriptorFactory.fromResource(R.drawable.you)));
+        mMap.getFocusedBuilding();
+
+
 
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
@@ -244,7 +255,7 @@ public class MapsActivity extends AppCompatActivity {
 
                     .title(data.getTitle())
                     .snippet(data.getDetailInfo())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.you2)));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.you)));
             uriList.put(latLng,data.getUriString());
         }
         mUriMap.putAll(uriList);

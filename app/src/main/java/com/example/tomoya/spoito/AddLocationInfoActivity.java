@@ -134,7 +134,7 @@ public class AddLocationInfoActivity extends AppCompatActivity {
 
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
         ParcelFileDescriptor parcelFileDescriptor =
-                getContentResolver().openFileDescriptor(uri, "r");
+        getContentResolver().openFileDescriptor(uri, "r");
         FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
         Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
         parcelFileDescriptor.close();
@@ -165,7 +165,9 @@ public class AddLocationInfoActivity extends AppCompatActivity {
         locationData.setDetailInfo(detailInfo);
         locationData.setLatitude(latLng.latitude);
         locationData.setLongitude(latLng.longitude);
-        locationData.setUriString(mPictureUri.toString()); //Uriをstringにして保存してあげる
+        if(mPictureUri!=null) {
+            locationData.setUriString(mPictureUri.toString());//Uriをstringにして保存してあげる
+        }
         mRealm.commitTransaction();
 
         Toast.makeText(getApplicationContext(), "保存しました",
