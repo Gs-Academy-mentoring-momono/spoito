@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tean">#009688</color>
+    <color name="darktean">#00796B</color>
+    <color name="accent">#FF5252</color>
+    <color name="white">#FFFFFF</color>
+</resources>

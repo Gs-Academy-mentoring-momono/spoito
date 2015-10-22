@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">spoito</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_add_location_info">AddLocationInfoActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="app_id">871098619606319</string>
 </resources>

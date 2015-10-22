@@ -26,7 +26,12 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".AddLocationInfoActivity"
+            android:label="@string/title_activity_add_location_info"
+            >
+        </activity>
+        <activity
+            android:name="com.example.tomoya.spoito.MapsActivity"
             android:label="@string/title_activity_maps" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,6 +39,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".ListViewActivity"
+            />
     </application>
 
 </manifest>
