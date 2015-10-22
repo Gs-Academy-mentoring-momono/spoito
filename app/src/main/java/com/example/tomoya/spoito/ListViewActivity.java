@@ -8,12 +8,19 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+
 import java.util.ArrayList;
+
+
+
 
 public class ListViewActivity extends Activity {
     /**
      * Called when the activity is first created.
      */
+
+    LocationData listdata = new LocationData();
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +31,7 @@ public class ListViewActivity extends Activity {
 
         // リストアイテムのラベルを格納するArrayListをインスタンス化
         ArrayList<String> labelList = new ArrayList<String>();
+
 
         // "List Item + ??"を20個リストに追加
         for(int i=1; i<=20; i++){

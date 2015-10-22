@@ -66,7 +66,6 @@ public class CustomAdapter extends ArrayAdapter<String> {
         Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.item_motion);
         // リストアイテムのアニメーションを開始
         view.startAnimation(anim);
-
         return view;
     }
 }
